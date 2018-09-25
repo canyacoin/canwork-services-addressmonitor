@@ -58,7 +58,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 	ctxDeadline, cancel := context.WithTimeout(ctx, 1*time.Minute)
 	defer cancel()
 
-	sendgrid.DefaultClient.HTTPClient = urlfetch.Client(ctx)
+	sendgrid.DefaultClient.HTTPClient = urlfetch.Client(ctxDeadline)
 	client := etherscan.NewG(etherscan.Mainnet, etherscanAPIKey, urlfetch.Client(ctxDeadline))
 
 	timestamp := time.Now().UTC()
@@ -76,7 +76,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 		log.Infof(ctx, fmt.Sprintf("Txs retrieved for address: %s : %d", addresses[i].Name, len(txs)))
 		r := funk.Filter(txs, func(tx etherscan.NormalTx) bool {
 			log.Debugf(ctx, fmt.Sprintf("Compare: txHash: %s\tatTime: %v\tagainst Time: %v", tx.Hash, tx.TimeStamp.Time(), timestamp))
-			return tx.TimeStamp.Time().Nanosecond() > timestamp.Nanosecond()
+			return tx.TimeStamp.Time().Unix() > timestamp.Unix()
 		})
 		if len(r.([]etherscan.NormalTx)) > 0 {
 			log.Infof(ctx, fmt.Sprintf("New transactions for address: %s\t count: %d", addresses[i].Name, len(r.([]etherscan.NormalTx))))
@@ -107,6 +107,7 @@ func sendEmail(ctx context.Context, w http.ResponseWriter, tx etherscan.NormalTx
 	p := mail.NewPersonalization()
 	p.AddTos(mail.NewEmail("Allen", "allen@canya.com"))
 
+	log.Infof(ctx, "Sending email...")
 	x := new(big.Int).Div(tx.Value.Int(), big.NewInt(10^18))
 
 	p.SetDynamicTemplateData("subject", "You have new incoming ethereum transaction")

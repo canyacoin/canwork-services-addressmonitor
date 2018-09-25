@@ -17,7 +17,7 @@ before_script:
   - cd $APP_PATH
   - go get
 
-deploy:staging:
+deploy:polling:
   stage: deploy
   environment:
     name: polling-on
@@ -31,11 +31,12 @@ deploy:staging:
     - gcloud config set project $GCP_PROJECT_ID
     - gcloud --quiet app deploy
     - gcloud app deploy cron.yaml
+  when: manual
+  allow_failure: false
   only:
     - master
-  allow_failure: false
 
-deploy:production:
+deploy:pollingOff:
   stage: deploy
   environment:
     name: polling-off
