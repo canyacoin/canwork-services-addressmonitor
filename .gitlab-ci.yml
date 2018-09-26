@@ -30,7 +30,6 @@ polling:on:
     - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
     - gcloud config set project $GCP_PROJECT_ID
     - gcloud --quiet app deploy
-    - gcloud app deploy cron.yaml
   when: manual
   allow_failure: false
   only:
@@ -49,7 +48,6 @@ polling:off:
     - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
     - gcloud config set project $GCP_PROJECT_ID
     - gcloud --quiet app deploy
-    - gcloud app deploy cronoff.yaml
   when: manual
   allow_failure: false
   only:
