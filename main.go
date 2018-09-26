@@ -113,11 +113,17 @@ func sendEmail(ctx context.Context, w http.ResponseWriter, tx etherscan.NormalTx
 	f := new(big.Float).SetInt(tx.Value.Int())
 	x := new(big.Float).Quo(f, big.NewFloat(math.Pow(10, 18)))
 
+	txTime := tx.TimeStamp.Time()
+	location, err := time.LoadLocation("Australia/Sydney")
+	if err == nil {
+		txTime = txTime.In(location)
+	}
+
 	p.SetDynamicTemplateData("subject", "You have new incoming ethereum transaction")
 	p.SetDynamicTemplateData("title", "W00t... someone is sending you ETHOLA!")
 	p.SetDynamicTemplateData("amount", fmt.Sprintf("%s ETH", x.String()))
 	p.SetDynamicTemplateData("address", fmt.Sprintf("%s - %s", address.Addr, address.Name))
-	p.SetDynamicTemplateData("time", fmt.Sprintf("%s", tx.TimeStamp.Time().String()))
+	p.SetDynamicTemplateData("time", fmt.Sprintf("%s", txTime.String()))
 	p.SetDynamicTemplateData("returnLinkText", "View transaction")
 	p.SetDynamicTemplateData("returnLinkUrl", fmt.Sprintf("https://etherscan.com/tx/%s", tx.Hash))
 
