@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"math"
 	"math/big"
 	"net/http"
 	"time"
@@ -108,7 +109,9 @@ func sendEmail(ctx context.Context, w http.ResponseWriter, tx etherscan.NormalTx
 	p.AddTos(mail.NewEmail("Allen", "allen@canya.com"))
 
 	log.Infof(ctx, "Sending email...")
-	x := new(big.Int).Div(tx.Value.Int(), big.NewInt(10^18))
+
+	f := new(big.Float).SetInt(tx.Value.Int())
+	x := new(big.Float).Quo(f, big.NewFloat(math.Pow(10, 18)))
 
 	p.SetDynamicTemplateData("subject", "You have new incoming ethereum transaction")
 	p.SetDynamicTemplateData("title", "W00t... someone is sending you ETHOLA!")

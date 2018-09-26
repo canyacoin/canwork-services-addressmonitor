@@ -17,7 +17,7 @@ before_script:
   - cd $APP_PATH
   - go get
 
-deploy:polling:
+polling:on:
   stage: deploy
   environment:
     name: polling-on
@@ -36,7 +36,7 @@ deploy:polling:
   only:
     - master
 
-deploy:pollingOff:
+polling:off:
   stage: deploy
   environment:
     name: polling-off
