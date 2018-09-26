@@ -1,6 +1,6 @@
 cron:
 - description: "polling for transactions"
-  url: /
+  url: /poll-transactions
   target: address-monitor
   schedule: every 10 minutes
   timezone: Australia/NSW
