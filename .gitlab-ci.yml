@@ -17,10 +17,10 @@ before_script:
   - cd $APP_PATH
   - go get
 
-polling:on:
+prod:
   stage: deploy
   environment:
-    name: polling-on
+    name: production
   script:
     - cd $APP_PATH
     - echo "Deploy to staging target GAE instance with project ID $GCP_PROJECT_ID"
@@ -34,21 +34,3 @@ polling:on:
   allow_failure: false
   only:
     - master
-
-polling:off:
-  stage: deploy
-  environment:
-    name: polling-off
-  script:
-    - cd $APP_PATH
-    - echo "Deploy to production target GAE instance with project ID $GCP_PROJECT_ID"
-    - echo $GCP_KEY > /tmp/$CI_PIPELINE_ID.json
-    - echo -n "+ using GCP KEY for prod deployer " && cat /tmp/$CI_PIPELINE_ID.json
-    - echo $APP_YAML_BASE64 | base64 -d > ./app.yaml
-    - gcloud auth activate-service-account --key-file /tmp/$CI_PIPELINE_ID.json
-    - gcloud config set project $GCP_PROJECT_ID
-    - gcloud --quiet app deploy
-  when: manual
-  allow_failure: false
-  only:
-  - master
