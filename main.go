@@ -77,7 +77,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 		log.Infof(ctx, fmt.Sprintf("Txs retrieved for address: %s : %d", addresses[i].Name, len(txs)))
 		r := funk.Filter(txs, func(tx etherscan.NormalTx) bool {
 			log.Debugf(ctx, fmt.Sprintf("Compare: txHash: %s\tatTime: %v\tagainst Time: %v", tx.Hash, tx.TimeStamp.Time(), timestamp))
-			return tx.TimeStamp.Time().Unix() > timestamp.Unix()
+			return tx.TimeStamp.Time().Unix() > timestamp.Unix() && tx.From != addresses[i].Addr
 		})
 		if len(r.([]etherscan.NormalTx)) > 0 {
 			log.Infof(ctx, fmt.Sprintf("New transactions for address: %s\t count: %d", addresses[i].Name, len(r.([]etherscan.NormalTx))))
