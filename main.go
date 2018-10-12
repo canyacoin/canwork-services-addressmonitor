@@ -8,6 +8,7 @@ import (
 	"math"
 	"math/big"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/alsco77/etherscan-api"
@@ -77,7 +78,7 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 		log.Infof(ctx, fmt.Sprintf("Txs retrieved for address: %s : %d", addresses[i].Name, len(txs)))
 		r := funk.Filter(txs, func(tx etherscan.NormalTx) bool {
 			log.Debugf(ctx, fmt.Sprintf("Compare: txHash: %s\tatTime: %v\tagainst Time: %v", tx.Hash, tx.TimeStamp.Time(), timestamp))
-			return tx.TimeStamp.Time().Unix() > timestamp.Unix() && tx.From != addresses[i].Addr
+			return tx.TimeStamp.Time().Unix() > timestamp.Unix() && !addressIsWhitelisted(tx.From)
 		})
 		if len(r.([]etherscan.NormalTx)) > 0 {
 			log.Infof(ctx, fmt.Sprintf("New transactions for address: %s\t count: %d", addresses[i].Name, len(r.([]etherscan.NormalTx))))
@@ -93,6 +94,16 @@ func handleRoot(w http.ResponseWriter, r *http.Request) {
 			log.Infof(ctx, fmt.Sprintf("No new transactions for address: %s", addresses[i].Name))
 		}
 	}
+}
+
+func addressIsWhitelisted(sender string) (whitelisted bool) {
+	for i := 0; i < len(addresses); i++ {
+		if strings.ToUpper(addresses[i].Addr) == strings.ToUpper(sender) {
+			return true
+		}
+	}
+
+	return false
 }
 
 func sendEmail(ctx context.Context, w http.ResponseWriter, tx etherscan.NormalTx, address address) bool {
